@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/app.js --exec babel-node ",
+    "start": "nodemon src/app.js --ext js,ts,graphql --exec babel-node ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

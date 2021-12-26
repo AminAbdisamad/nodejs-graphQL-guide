@@ -1,0 +1,61 @@
+type Query {
+  me: User!
+  post(id: ID!): Post!
+  posts: [Post!]!
+  users(query: String): [User!]!
+  comments: [Comment!]!
+}
+type Mutation {
+  # Create Mutation
+  createUser(data: CreateUserInput!): User!
+  createPost(data: CreatePostInput!): Post!
+  createComment(text: String!): Comment!
+  # Delete Mutation
+  deletePost(id: ID!): Post!
+
+  # Update Mutation
+  updateUser(id: ID!, data: UpdateUserInput!): User!
+}
+# to organize creaeUser we can implemnt input
+input CreateUserInput {
+  username: String!
+  email: String!
+  name: String!
+}
+input UpdateUserInput {
+  username: String
+  email: String
+  name: String
+}
+input CreatePostInput {
+  title: String!
+  description: String!
+  published: Boolean!
+}
+input CreateCommentInput {
+  id: Int
+  text: String!
+}
+type User {
+  name: String!
+  username: String!
+  email: String!
+  password: String
+  age: Int
+  posts: [Post!]!
+  comments: [Comment!]!
+}
+
+type Post {
+  id: ID!
+  title: String!
+  description: String!
+  published: Boolean!
+  author: User!
+}
+type Comment {
+  id: ID!
+  text: String!
+  author: User!
+  post: Post!
+}
