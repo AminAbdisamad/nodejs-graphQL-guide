@@ -1,5 +1,5 @@
 import { ApolloServer, gql } from "apollo-server";
-
+import { v4 } from "uuid";
 // Type definations - Schema
 
 // — Customer
@@ -33,19 +33,73 @@ const users = [
     password: "****",
   },
 ];
+
+const posts = [
+  {
+    id: 1,
+    title: "Post Title One",
+    description: "",
+    published: false,
+    author: 1,
+  },
+  {
+    id: 2,
+    title: "Post Title Two",
+    description: "",
+    published: false,
+    author: 2,
+  },
+  {
+    id: 3,
+    title: "Post Title Three",
+    description: "",
+    published: true,
+    author: 3,
+  },
+];
+
+const comments = [
+  { id: 1, text: "great post", author: 3, post: 1 },
+  { id: 2, text: "Amazing post", author: 1, post: 2 },
+  { id: 3, text: "The best post", author: 2, post: 3 },
+  { id: 4, text: "what is this", author: 2, post: 1 },
+];
 const typeDefs = gql`
   type Query {
     me: User!
-    post: Post!
+    post(id: ID!): Post!
+    posts: [Post!]!
     users(query: String): [User!]!
+    comments: [Comment!]!
   }
-
-  type User {
-    name: String
+  type Mutation {
+    createUser(data: CreateUserInput): User!
+    createPost(data: CreatePostInput): Post!
+    createComment(text: String!): Comment!
+  }
+  # to organize creaeUser we can implemnt input
+  input CreateUserInput {
     username: String!
     email: String!
-    password: String!
+    name: String!
+  }
+  input CreatePostInput {
+    title: String!
+    description: String!
+    published: Boolean!
+  }
+  input CreateCommentInput {
+    id: Int
+    text: String!
+  }
+  type User {
+    name: String!
+    username: String!
+    email: String!
+    password: String
     age: Int
+    posts: [Post!]!
+    comments: [Comment!]!
   }
 
   type Post {
@@ -53,11 +107,61 @@ const typeDefs = gql`
     title: String!
     description: String!
     published: Boolean!
+    author: User!
+  }
+  type Comment {
+    id: ID!
+    text: String!
+    author: User!
+    post: Post!
   }
 `;
 
 // Resolvers
 const resolvers = {
+  Post: {
+    author(parent) {
+      return users.find((user) => {
+        return user.id === parent.author;
+      });
+    },
+  },
+  Comment: {
+    author(parent) {
+      return users.find((user) => user.id === parent.author);
+    },
+    post(parent) {
+      return posts.find((post) => post.id === parent.post);
+    },
+  },
+  User: {
+    posts(parent) {
+      return posts.filter((post) => post.id === parent.id);
+    },
+    comments(parent) {
+      return comments.filter((comment) => comment.id === parent.id);
+    },
+  },
+
+  Mutation: {
+    createUser(_, args) {
+      // check if email is taken
+      // 1) Find, Filter, Reduce, Map, some,
+      const isEmailTaken = users.find((user) => user.email === args.data.email);
+      if (isEmailTaken) {
+        throw new Error("Email arealy Taken");
+      }
+      const user = { id: v4(), ...args.data };
+      users.push(user);
+      // console.log(users);
+      return user;
+    },
+    createPost(_, args) {
+      const post = { id: v4(), ...args.data };
+      posts.push();
+      return post;
+    },
+  },
   Query: {
     users(_, { query }) {
       if (!query) {
@@ -68,12 +172,17 @@ const resolvers = {
         return name.includes(query.toLowerCase());
       });
     },
-
+    comments() {
+      return comments;
+    },
     me: () => {
       return {
         username: "username",
         email: "example@email.com",
       };
+    },
+    posts() {
+      return posts;
     },
   },
 };
