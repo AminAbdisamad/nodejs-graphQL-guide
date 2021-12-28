@@ -9,6 +9,7 @@ type Subscription {
   count: Int!
   countdown(from: Int!): Int!
   comment(postId: String!): Comment!
+  posts: [Post]!
 }
 
 type Mutation {

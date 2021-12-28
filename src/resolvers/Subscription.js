@@ -26,8 +26,12 @@ export const Subscription = {
       // check if the post exist
       const post = db.posts.find((post) => post.id === postId);
       if (!post) throw new Error("No Post with this ID");
-      console.log(postId);
       return pubsub.subscribe(`Comments_of_post_with_id_${postId}`);
+    },
+  },
+  posts: {
+    subscribe(parent, args, { db, pubsub }) {
+      return pubsub.subscribe(`posts`);
     },
   },
 };

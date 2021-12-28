@@ -34,10 +34,10 @@ export const Mutation = {
     if (typeof data.name === "string") user.name = data.name;
     return user;
   },
-  createPost(_, args, ctx) {
-    const { posts } = ctx.db;
+  createPost(_, args, { db, pubsub }) {
     const post = { id: v4(), ...args.data };
-    posts.push(post);
+    db.posts.push(post);
+    pubsub.publish("posts", { posts: db.posts });
     return post;
   },
 
@@ -55,20 +55,23 @@ export const Mutation = {
     return posts[postIndex];
   },
   createComment(parent, args, { db, pubsub }) {
-    //check if the post exist
-    const author = args.authorId;
-    const post = args.postId;
-    const text = args.text;
+    const postToComment = db.posts.some((post) => post.id === args.postId);
+    const userToComment = db.users.some((user) => user.id === args.authorId);
 
-    console.log({ author, author, text });
-    const postToComment = db.posts.some((post) => post.id === post);
-    const userToComment = db.users.some((user) => user.id === author);
     if (!postToComment && !userToComment)
       throw new Error("Unable to find user or post");
-    const comment = { id: v4(), author, post, text };
+
+    const comment = {
+      id: v4(),
+      author: args.authorId,
+      post: args.postId,
+      text: args.text,
+    };
     db.comments.push(comment);
 
-    pubsub.publish(`Comments_of_post_with_id_${post}`, { comment });
+    pubsub.publish(`Comments_of_post_with_id_${post}`, {
+      comment,
+    });
     return comment;
   },
   updateComment(_, { id, data }, { db }) {
