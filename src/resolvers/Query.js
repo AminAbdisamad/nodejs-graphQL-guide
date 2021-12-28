@@ -17,6 +17,10 @@ export const Query = {
       email: "example@email.com",
     };
   },
+  post(_, args, { db }) {
+    const post = db.posts.find((post) => post.id === args.id);
+    return post;
+  },
   posts(parent, args, { db }) {
     return db.posts;
   },

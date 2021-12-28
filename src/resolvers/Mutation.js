@@ -17,7 +17,7 @@ export const Mutation = {
   updateUser(_, args, { db }) {
     //   Get user by id
     const { id, data } = args;
-    const user = db.users.find((user) => user.id == parseInt(id));
+    const user = db.users.find((user) => user.id == id);
     if (!user) {
       throw new Error("User not found");
     }
@@ -45,7 +45,7 @@ export const Mutation = {
     // check if post exist
     console.log(args.id);
     const { posts } = ctx.db;
-    const postIndex = posts.findIndex((post) => post.id === parseInt(args.id));
+    const postIndex = posts.findIndex((post) => post.id === args.id);
     console.log(postIndex);
     if (postIndex === -1) {
       throw new Error("Post not found");
@@ -54,10 +54,26 @@ export const Mutation = {
     posts.slice(postIndex, 1);
     return posts[postIndex];
   },
+  createComment(parent, args, { db, pubsub }) {
+    //check if the post exist
+    const author = args.authorId;
+    const post = args.postId;
+    const text = args.text;
 
+    console.log({ author, author, text });
+    const postToComment = db.posts.some((post) => post.id === post);
+    const userToComment = db.users.some((user) => user.id === author);
+    if (!postToComment && !userToComment)
+      throw new Error("Unable to find user or post");
+    const comment = { id: v4(), author, post, text };
+    db.comments.push(comment);
+
+    pubsub.publish(`Comments_of_post_with_id_${post}`, { comment });
+    return comment;
+  },
   updateComment(_, { id, data }, { db }) {
     // check if the comment exist
-    const comment = db.comments.find((comment) => comment.id === parseInt(id));
+    const comment = db.comments.find((comment) => comment.id === id);
     console.log(comment);
     if (!comment) {
       throw new Error("Comment not found");

@@ -7,15 +7,15 @@ type Query {
 }
 type Subscription {
   count: Int!
-}
-type Subscription {
   countdown(from: Int!): Int!
+  comment(postId: String!): Comment!
 }
+
 type Mutation {
   # Create Mutation
   createUser(data: CreateUserInput!): User!
   createPost(data: CreatePostInput!): Post!
-  createComment(text: String!): Comment!
+  createComment(postId: String!, authorId: String!, text: String!): Comment!
   # Delete Mutation
   deletePost(id: ID!): Post!
 
@@ -60,6 +60,7 @@ type Post {
   description: String!
   published: Boolean!
   author: User!
+  comment: Comment!
 }
 type Comment {
   id: ID!

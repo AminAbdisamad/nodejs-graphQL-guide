@@ -10,8 +10,7 @@ export const Subscription = {
   },
 
   count: {
-    subscribe: async function (parent, args, { pubsub }, info) {
-      console.log(pubsub);
+    subscribe(parent, args, { pubsub }, info) {
       let count = 0;
       setInterval(() => {
         count++;
@@ -20,6 +19,15 @@ export const Subscription = {
         });
       }, 1000);
       return pubsub.subscribe("count");
+    },
+  },
+  comment: {
+    subscribe(_, { postId }, { db, pubsub }) {
+      // check if the post exist
+      const post = db.posts.find((post) => post.id === postId);
+      if (!post) throw new Error("No Post with this ID");
+      console.log(postId);
+      return pubsub.subscribe(`Comments_of_post_with_id_${postId}`);
     },
   },
 };
