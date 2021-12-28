@@ -36,26 +36,80 @@ export const Mutation = {
   },
   createPost(_, args, { db, pubsub }) {
     const post = { id: v4(), ...args.data };
+    console.log(post);
     db.posts.push(post);
-    pubsub.publish("posts", { posts: db.posts });
+    console.log(args.data.published);
+    if (args.data.published) {
+      pubsub.publish("post", {
+        post: {
+          mutation: "CREATED",
+          data: post,
+        },
+      });
+    }
     return post;
   },
 
-  deletePost(_, args, ctx) {
+  deletePost(_, args, { pubsub, db }) {
     // check if post exist
-    console.log(args.id);
-    const { posts } = ctx.db;
-    const postIndex = posts.findIndex((post) => post.id === args.id);
-    console.log(postIndex);
+
+    const postIndex = db.posts.findIndex((post) => post.id === args.id);
     if (postIndex === -1) {
       throw new Error("Post not found");
     }
     // Remove from posts
-    posts.slice(postIndex, 1);
-    return posts[postIndex];
+    db.posts.slice(postIndex, 1);
+    pubsub.publish("post", {
+      post: {
+        mutation: "DELETED",
+        data: db.posts[postIndex],
+      },
+    });
+    return db.posts[postIndex];
+  },
+  updatePost(parent, args, { db, pubsub }) {
+    const { id, data } = args;
+    const post = db.posts.find((post) => post.id === id);
+    const originalPost = { ...post };
+    if (!post) {
+      throw new Error("No Post Found");
+    }
+    if (typeof data.title === "string") post.title = data.title;
+    if (typeof data.description === "string")
+      post.description = data.description;
+    if (typeof data.published === "boolean") {
+      post.published = data.published;
+
+      if (originalPost.published && !post.published) {
+        //Already Published, Delete
+        pubsub.publish("post", {
+          post: {
+            mutation: "DELETED",
+            data: originalPost,
+          },
+        });
+      } else if (!originalPost.published && post.published) {
+        // Publish Now, Create
+        pubsub.publish("post", {
+          post: {
+            mutation: "CREATED",
+            data: post,
+          },
+        });
+      }
+    } else if (post.published) {
+      pubsub.publish("post", {
+        post: {
+          mutation: "UPDATED",
+          data: post,
+        },
+      });
+    }
+    return post;
   },
   createComment(parent, args, { db, pubsub }) {
     const postToComment = db.posts.some((post) => post.id === args.postId);
+
     const userToComment = db.users.some((user) => user.id === args.authorId);
 
     if (!postToComment && !userToComment)

@@ -29,9 +29,9 @@ export const Subscription = {
       return pubsub.subscribe(`Comments_of_post_with_id_${postId}`);
     },
   },
-  posts: {
+  post: {
     subscribe(parent, args, { db, pubsub }) {
-      return pubsub.subscribe(`posts`);
+      return pubsub.subscribe(`post`);
     },
   },
 };

@@ -9,7 +9,8 @@ type Subscription {
   count: Int!
   countdown(from: Int!): Int!
   comment(postId: String!): Comment!
-  posts: [Post]!
+  #   posts: [Post]!
+  post: PostSubscriptionPayload!
 }
 
 type Mutation {
@@ -17,12 +18,14 @@ type Mutation {
   createUser(data: CreateUserInput!): User!
   createPost(data: CreatePostInput!): Post!
   createComment(postId: String!, authorId: String!, text: String!): Comment!
+
   # Delete Mutation
   deletePost(id: ID!): Post!
 
   # Update Mutation
   updateUser(id: ID!, data: UpdateUserInput!): User!
   updateComment(id: ID!, data: CreateCommentInput): Comment!
+  updatePost(id: ID!, data: UpdatePostInput): Post!
 }
 # to organize creaeUser we can implemnt input
 input CreateUserInput {
@@ -34,6 +37,11 @@ input UpdateUserInput {
   username: String
   email: String
   name: String
+}
+input UpdatePostInput {
+  title: String
+  description: String
+  published: Boolean
 }
 input CreatePostInput {
   title: String!
@@ -61,11 +69,28 @@ type Post {
   description: String!
   published: Boolean!
   author: User!
-  comment: Comment!
+  comment: [Comment]!
 }
 type Comment {
   id: ID!
   text: String!
   author: User!
   post: Post!
+}
+enum MutationType {
+  CREATED
+  DELETED
+  UPDATED
+}
+type PostSubscriptionPayload {
+  mutation: MutationType!
+  data: Post!
+}
+type CommentSubscriptionPayload {
+  mutation: MutationType!
+  data: Comment!
+}
+type UserSubscriptionPayload {
+  mutation: MutationType!
+  data: User!
 }
