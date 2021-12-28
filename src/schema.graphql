@@ -5,6 +5,12 @@ type Query {
   users(query: String): [User!]!
   comments: [Comment!]!
 }
+type Subscription {
+  count: Int!
+}
+type Subscription {
+  countdown(from: Int!): Int!
+}
 type Mutation {
   # Create Mutation
   createUser(data: CreateUserInput!): User!
@@ -15,6 +21,7 @@ type Mutation {
 
   # Update Mutation
   updateUser(id: ID!, data: UpdateUserInput!): User!
+  updateComment(id: ID!, data: CreateCommentInput): Comment!
 }
 # to organize creaeUser we can implemnt input
 input CreateUserInput {
@@ -37,6 +44,7 @@ input CreateCommentInput {
   text: String!
 }
 type User {
+  id: ID!
   name: String!
   username: String!
   email: String!

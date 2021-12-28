@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon src/app.js --ext js,ts,graphql --exec babel-node ",
+    "start": "nodemon src/server.js --ext js,ts,graphql --exec babel-node ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -17,8 +17,13 @@
     "nodemon": "^2.0.15"
   },
   "dependencies": {
+    "@graphql-tools/schema": "^8.3.1",
     "apollo-server": "^3.5.0",
+    "express": "^4.17.2",
     "graphql": "^16.2.0",
+    "graphql-subscriptions": "^2.0.0",
+    "graphql-yoga": "^2.0.0-alpha.6",
+    "subscriptions-transport-ws": "^0.11.0",
     "uuid": "^8.3.2"
   }
 }
