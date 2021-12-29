@@ -1,7 +1,7 @@
 import { v4 } from "uuid";
 
 export const Mutation = {
-  createUser(_, args, ctx) {
+  createUser(_: any, args: any, ctx: any) {
     const { users } = ctx.db;
     // check if email is taken
     // 1) Find, Filter, Reduce, Map, some,
@@ -14,10 +14,10 @@ export const Mutation = {
     // console.log(users);
     return user;
   },
-  updateUser(_, args, { db }) {
+  updateUser(_: any, args: any, { db }: any) {
     //   Get user by id
     const { id, data } = args;
-    const user = db.users.find((user) => user.id == id);
+    const user = db.users.find((user: any) => user.id == id);
     if (!user) {
       throw new Error("User not found");
     }
@@ -34,7 +34,7 @@ export const Mutation = {
     if (typeof data.name === "string") user.name = data.name;
     return user;
   },
-  createPost(_, args, { db, pubsub }) {
+  createPost(_: any, args: any, { db, pubsub }: any) {
     const post = { id: v4(), ...args.data };
     console.log(post);
     db.posts.push(post);
@@ -50,7 +50,7 @@ export const Mutation = {
     return post;
   },
 
-  deletePost(_, args, { pubsub, db }) {
+  deletePost(_: any, args: any, { pubsub, db }: any) {
     // check if post exist
 
     const postIndex = db.posts.findIndex((post) => post.id === args.id);
